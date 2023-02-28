@@ -1,0 +1,23 @@
+{
+  "name": "fourcoding",
+  "private": true,
+  "version": "1.0.0",
+  "author": "https://github.com/CrgioYalux",
+  "license": "MIT",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev:client": "yarn workspace client run dev",
+    "dev:server": "yarn workspace server run dev",
+    "build": "yarn workspace server run build && yarn workspace client run build",
+    "start": "yarn run build && yarn workspace server run start"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "typescript": "^4.9.3"
+  },
+  "devDependecies": {
+  }
+}
