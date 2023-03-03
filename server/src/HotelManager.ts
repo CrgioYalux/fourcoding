@@ -1,4 +1,6 @@
 import { v4 } from 'uuid';
+import { arrayToFixedLengthArray } from './FixedLengthArray';
+
 import type { OperationResult } from './utils';
 import type { FixedLengthArray } from './FixedLengthArray';
 
@@ -62,6 +64,45 @@ class HotelManager<T extends number, K> {
         };
     }
 
+    public removeFromRoom(roomID: string, participantIdx: number): void {
+        const room = this.hotel.get(roomID);
+
+        if (room) {
+            const participantsLeft = arrayToFixedLengthArray<Hosted<K>, T>(room.participants.map((p, idx) => idx === participantIdx ? null : p));
+
+            const updatedRoom: Room<T, Hosted<K>> = {
+                participants: participantsLeft,
+                key: room.key,
+            };
+
+            this.hotel.set(roomID, updatedRoom);
+        }
+    }
+
+    public checkRoom(roomID: string, key?: string): OperationResult<Room<T, Hosted<K>>> {
+        const room = this.hotel.get(roomID);
+
+        if (!room) {
+            return {
+                error: true,
+                msgs: ["Room not found"],
+            };
+        }
+
+        if ((room.key && !key) || (room.key && key && room.key !== key)) {
+            return {
+                error: true,
+                msgs: [`Room key is incorrect`],
+            };
+        }
+
+        return {
+            error: false,
+            msgs: [],
+            out: room,
+        };
+    }
+
     public createRoom(creator: Hosted<K>, key?: string, limit?: number): string {
         const roomID: string = v4();
 
@@ -86,7 +127,7 @@ class HotelManager<T extends number, K> {
     private createHostedsArray(): FixedLengthArray<Hosted<K>, T> {
         const arr = new Array<Hosted<K>>(this.roomLength).fill(null);
 
-        return (arr as unknown) as FixedLengthArray<Hosted<K>, T>;
+        return arrayToFixedLengthArray<Hosted<K>, T>(arr);
     }
 }
 

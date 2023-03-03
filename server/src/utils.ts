@@ -7,7 +7,7 @@ type OperationResult<T> = {
 }
 
 const corsOptions: CorsOptions = {
-    origin: false,
+    origin: '*',
 };
 
 export type { OperationResult };

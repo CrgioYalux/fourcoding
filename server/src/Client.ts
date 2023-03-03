@@ -1,15 +1,16 @@
-import { FixedLengthArray } from "./FixedLengthArray";
-
 const UserNames = ["Alfa", "Bravo", "Charlie", "Delta"] as const;
-type UserName = typeof UserNames[number];
 
 type Client = {
     username: string,
-    ip: string,
+    id: string,
 }
 
-function generateUsername<T extends number>(used: FixedLengthArray<string | null, T>): string {
+function generateUsername(used?: Array<string | null>): string {
     let username: string = '';
+
+    if (!used) {
+        return UserNames[0];
+    }
 
     for (let i = 0; i < UserNames.length; i++) {
         let exists = false;
@@ -28,4 +29,4 @@ function generateUsername<T extends number>(used: FixedLengthArray<string | null
 }
 
 export type { Client };
-export { };
+export { generateUsername };
