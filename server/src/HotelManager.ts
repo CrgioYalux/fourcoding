@@ -131,4 +131,5 @@ class HotelManager<T extends number, K> {
     }
 }
 
+export type { Room, Hosted };
 export default HotelManager;

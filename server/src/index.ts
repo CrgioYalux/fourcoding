@@ -9,6 +9,8 @@ import { corsOptions } from './utils';
 
 import { Client, generateUsername } from './Client';
 
+import type { Socket } from 'socket.io';
+
 const pathToBuild: string =
     process.env.NODE_ENV === 'dev'
         ? path.join(__dirname, '..', '..', 'client', 'dist')
@@ -23,129 +25,142 @@ app.use(express.static(pathToBuild));
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
+interface ServerToClientEvents {
+    'connection-success': (data: {participants: (string | null)[]} | {msgs: string[]} | {roomID: string}) => void;
+    'connection-error': (data: { msgs: string[] }) => void;
+
+    'get-full-editor': () => void;
+
+    'send-full-editor': (data: {js: string, html: string, css: string}) => void;
+    'send-js-editor': (data: {js: string}) => void;
+    'send-html-editor': (data: {html: string}) => void;
+    'send-css-editor': (data: {css: string}) => void;
+}
+
+interface ClientToServerEvents {
+    'connect': (callback: (socket: Socket) => void) => void;
+    'disconnect': () => void;
+
+    'send-full-editor': (data: {js: string, html: string, css: string}) => void;
+    'send-js-editor': (data: {js: string}) => void;
+    'send-html-editor': (data: {html: string}) => void;
+    'send-css-editor': (data: {css: string}) => void;
+}
+
+interface InterServerEvents {
+    'ping': () => void;
+}
+
+type ClientInitialRequest = {
+    username?: string,
+    password?: string,
+    roomID?: string,
+    type: 'create-room' | 'join-room',
+}
+
+interface SocketData {
+    clientHandshake: ClientInitialRequest;
+}
+
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(server, {
     path: '/socket/',
     serveClient: false,
     cors: corsOptions,
 });
 
-type SocketClientRequestType = 'create-room' | 'join-room' | 'update-room';
-
-type SocketClientRequest = {
-    username?: string,
-    password?: string,
-    roomID?: string,
-    type: SocketClientRequestType,
-}
-
-
-const SocketEvent = {
-    connection: {
-        init: 'connection',
-        end: 'disconnect',
-        error: 'connection-error',
-        success: 'connection-success'
-    },
-    editor: {
-        full: {
-            send: 'send-full-editor',
-            receive: 'receive-full-editor',
-        },
-        js: {
-            send: 'send-js-editor',
-            receive: 'receive-js-editor',
-        },
-        html: {
-            send: 'send-html-editor',
-            receive: 'receive-html-editor',
-        },
-        css: {
-            send: 'send-css-editor',
-            receive: 'receive-css-editor',
-        },
-    },
-} as const;
-
-function isSocketClientRequest(v: any): v is SocketClientRequest {
-    // return 'username' in v && 'password' in v && 'roomID' in v && 'type' in v;
-    return 'type' in v; // only field required, the rest is optional
-}
-
 const hotel = new HotelManager<4, Client>();
 
-io.on(SocketEvent.connection.init, async (socket) => {
 
-    const login = JSON.parse(socket.handshake.query.login as string);
+function isClientInitialRequest(v: any): v is ClientInitialRequest {
+    return 'type' in v;
+}
 
-    if (isSocketClientRequest(login)) {
-        const roomID = login.roomID ?? false;
+io.on('connect', async (socket) => {
+    if (typeof socket.handshake.query.clientInitialRequest !== 'string') return;
 
-        if (login.type === 'create-room') {
-            const username: string = login.username ?? generateUsername();
+    const clientInitialRequest = JSON.parse(socket.handshake.query.clientInitialRequest as string);
+
+    console.log(clientInitialRequest);
+
+    if (isClientInitialRequest(clientInitialRequest)) {
+        const type = clientInitialRequest.type;
+        const password = clientInitialRequest.password;
+
+        if (type === 'create-room') {
+            const username = clientInitialRequest.username ?? generateUsername();
 
             const roomID = hotel.createRoom({
                 username: username,
                 id: socket.id,
-            });
+            }, password);
 
-            socket.emit(SocketEvent.connection.success, { roomID });
+            socket.emit('connection-success', { roomID });
         }
-        else if (login.type === 'join-room') {
+        else if (type === 'join-room') {
+            const roomID = clientInitialRequest.roomID;
+
             if (!roomID) {
-                socket.emit(SocketEvent.connection.error);
+                socket.emit('connection-error', { msgs: ['No roomID provided'] });
                 socket.disconnect();
                 return;
             }
 
-            const checkOperation = hotel.checkRoom(roomID, login.password);
+            const checkOperation = hotel.checkRoom(roomID, password);
 
             if (checkOperation.error || !checkOperation.out) {
-                socket.emit(SocketEvent.connection.error, { msgs: checkOperation.msgs });
+                socket.emit('connection-error', { msgs: checkOperation.msgs });
                 socket.disconnect();
                 return;
             }
 
-            const username: string = login.username ?? generateUsername([...checkOperation.out.participants.map((p) => p ? p.username : null)]);
+            const username = clientInitialRequest.username ?? generateUsername([...checkOperation.out.participants.map((p) => p ? p.username : null)]);
 
             const operationResult = hotel.joinRoom(roomID, {
                 username: username,
                 id: socket.id,
-            });
+            }, password);
 
             if (operationResult.error) {
-                socket.emit(SocketEvent.connection.error, { msgs: operationResult.msgs });
+                socket.emit('connection-error', { msgs: operationResult.msgs });
                 socket.disconnect();
                 return;
             }
 
             await socket.join(roomID);
 
-            socket.broadcast.to(roomID).emit(SocketEvent.editor.full.receive);
+            socket.emit('connection-success', { participants: [...checkOperation.out.participants.map((p) => p ? p.username : null)] });
+            socket.broadcast.to(roomID).emit('get-full-editor');
 
-            socket.on(SocketEvent.editor.full.send, (data) => {
-                socket.emit(SocketEvent.editor.full.receive, { data }); // {js: '', html: '', css: ''}
+            socket.on('send-full-editor', (data) => {
+                socket.emit('send-full-editor', data);
             });
         }
         else {
+            const roomID = clientInitialRequest.roomID;
             if (roomID) {
-                socket.on(SocketEvent.editor.js.send, (data) => {
-                    socket.broadcast.to(roomID).emit(SocketEvent.editor.js.receive, { data });
+                socket.on('send-js-editor', (data) => {
+                    socket.broadcast.to(roomID).emit('send-js-editor', data);
                 });
-                socket.on(SocketEvent.editor.html.send, (data) => {
-                    socket.broadcast.to(roomID).emit(SocketEvent.editor.html.receive, { data });
+                socket.on('send-html-editor', (data) => {
+                    socket.broadcast.to(roomID).emit('send-html-editor', data);
                 });
-                socket.on(SocketEvent.editor.css.send, (data) => {
-                    socket.broadcast.to(roomID).emit(SocketEvent.editor.css.receive, { data });
+                socket.on('send-css-editor', (data) => {
+                    socket.broadcast.to(roomID).emit('send-css-editor', data);
                 });
             }
         }
 
-        socket.on(SocketEvent.connection.end, () => {
-            if (roomID) {
-                const checkOperation = hotel.checkRoom(roomID, login.password);
+        socket.on('disconnect', () => {
+            if (clientInitialRequest) {
+                const roomID = clientInitialRequest.roomID;
+                const password = clientInitialRequest.password;
+
+                if (!roomID) return;
+
+                const checkOperation = hotel.checkRoom(roomID, password);
 
                 if (checkOperation.out) {
-                    const removedParticipantID: number = checkOperation.out.participants.findIndex((p) => p && (p.id === socket.id));
+                    const removedParticipantID = checkOperation.out.participants.findIndex((p) => p && (p.id === socket.id));
                     hotel.removeFromRoom(roomID, removedParticipantID);
                     socket.leave(roomID);
                 }
