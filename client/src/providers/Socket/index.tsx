@@ -1,82 +1,79 @@
-import { createContext, useContext, useState } from "react";
-import useSocket from "../../hooks/useSocket";
+import { createContext, useContext, useEffect, useState } from "react";
+import useSocket, { SocketConnectionEvent } from "../../hooks/useSocket";
 
-import type { Socket } from 'socket.io-client';
+type Room = {
+    ID: string,
+    participants: (string | null)[],
+}
 
 interface SocketContext {
-    socket: Socket | null;
+    room: Room | null,
+    connected: boolean,
+    error: boolean,
+    logs: string[],
 }
 
 const SocketContext = createContext<SocketContext>({
-    socket: null
+    connected: false,
+    logs: [],
+    error: false,
+    room: null,
 });
 
 const useSocketContext = () => useContext<SocketContext>(SocketContext);
 
-type SocketQueryLogin = {
+type ClientInitialRequest = {
     roomID?: string;
     username?: string;
     password?: string;
-    type: 'create-room' | 'join-room' | 'update-room';
+    type: 'create-room' | 'join-room';
 }
 
 interface SocketProviderProps {
     children: React.ReactNode;
     url: string;
-    login: SocketQueryLogin
+    path: string;
+    clientInitialRequest: ClientInitialRequest; 
 };
 
-const SocketEvent = {
-    connection: {
-        init: 'connection',
-        end: 'disconnect',
-        error: 'connection-error',
-        success: 'connection-success'
-    },
-    editor: {
-        full: {
-            send: 'send-full-editor',
-            receive: 'receive-full-editor',
-        },
-        js: {
-            send: 'send-js-editor',
-            receive: 'receive-js-editor',
-        },
-        html: {
-            send: 'send-html-editor',
-            receive: 'receive-html-editor',
-        },
-        css: {
-            send: 'send-css-editor',
-            receive: 'receive-css-editor',
-        },
-    },
-} as const;
+const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path, clientInitialRequest }) => {
+    const { socket, connected, error, logs } = useSocket(url, path, 'clientInitialRequest', clientInitialRequest);
+    const [room, setRoom] = useState<Room | null>(null);
 
-const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, login }) => {
-    const [socket, socketID] = useSocket(url, JSON.stringify(login));
-    const [lastMsgs, setLastMsgs] = useState<string[]>([]);
+    useEffect(() => {
+        if (!socket || clientInitialRequest.type !== 'create-room') return;
 
-    socket?.on(SocketEvent.connection.success, (data) => {
-        const { roomID } = data as { roomID: string };
-        
-        console.log(SocketEvent.connection.success);
-        console.log({ roomID });
-        // should have a higher context to provide a setRoomID so I could call it here
+        socket.on(SocketConnectionEvent.connection.success, (data) => {
+            const expected = data as { roomID: string };
+            if (!expected.roomID) return;
+            setRoom({ ID: expected.roomID, participants: [] });
+        });
+
+        return () => {
+            socket.off(SocketConnectionEvent.connection.success);
+        };
     });
 
-    socket?.on(SocketEvent.connection.error, (data) => {
-        const { msgs } = data as { msgs: string[] };
- 
-        console.log(SocketEvent.connection.error);
-        console.log({ msgs });
+    useEffect(() => {
+        if (!socket || clientInitialRequest.type !== 'join-room') return;
 
-        setLastMsgs((prev) => [...prev, ...msgs]);
+        socket.on(SocketConnectionEvent.connection.success, (data) => {
+            const expected = data as Room;
+            console.log(expected);
+            if (!expected) return;
+            setRoom(expected);
+        });
+
+        return () => {
+            socket.off(SocketConnectionEvent.connection.success);
+        };
     });
-
 
     const value: SocketContext = {
-        socket
+        room,
+        connected,
+        error,
+        logs,
     };
 
     return (
@@ -86,6 +83,6 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, login })
     );
 };
 
-export type { SocketQueryLogin };
+export type { ClientInitialRequest };
 export { useSocketContext };
 export default SocketProvider;
