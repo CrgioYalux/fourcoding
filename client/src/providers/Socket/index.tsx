@@ -1,17 +1,20 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import useSocket, { SocketConnectionEvent } from "../../hooks/useSocket";
+import useSocket from "../../hooks/useSocket";
+
+import type { Socket } from 'socket.io-client';
+import type { CustomServerToClientEvents, CustomClientToServerEvents, ClientInitialRequest } from './utils';
 
 type Room = {
     ID: string,
     participants: (string | null)[],
-}
+};
 
 interface SocketContext {
     room: Room | null,
     connected: boolean,
     error: boolean,
     logs: string[],
-}
+};
 
 const SocketContext = createContext<SocketContext>({
     connected: false,
@@ -22,50 +25,80 @@ const SocketContext = createContext<SocketContext>({
 
 const useSocketContext = () => useContext<SocketContext>(SocketContext);
 
-type ClientInitialRequest = {
-    roomID?: string;
-    username?: string;
-    password?: string;
-    type: 'create-room' | 'join-room';
-}
-
 interface SocketProviderProps {
     children: React.ReactNode;
     url: string;
     path: string;
-    clientInitialRequest: ClientInitialRequest; 
+    clientInitialRequest: Partial<Omit<ClientInitialRequest, 'type'>> & Pick<ClientInitialRequest, 'type'>; 
 };
 
 const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path, clientInitialRequest }) => {
-    const { socket, connected, error, logs } = useSocket(url, path, 'clientInitialRequest', clientInitialRequest);
+    const { socket, connected, error, logs } = useSocket<Socket<CustomServerToClientEvents, CustomClientToServerEvents>>(url, path);
     const [room, setRoom] = useState<Room | null>(null);
 
     useEffect(() => {
-        if (!socket || clientInitialRequest.type !== 'create-room') return;
+        if (!socket) return;
+        if (clientInitialRequest.type !== 'join-room') return;
+        if (!clientInitialRequest.roomID) return;
 
-        socket.on(SocketConnectionEvent.connection.success, (data) => {
-            const expected = data as { roomID: string };
-            if (!expected.roomID) return;
-            setRoom({ ID: expected.roomID, participants: [] });
+        console.log('join-room');
+        socket.emit('join-room', {
+            roomID: clientInitialRequest.roomID,
+            username: clientInitialRequest.username,
+            password: clientInitialRequest.password
         });
 
         return () => {
-            socket.off(SocketConnectionEvent.connection.success);
+            if (!socket) return;
+            socket.off('join-room');
+        };
+    }, [clientInitialRequest]);
+
+    useEffect(() => {
+        if (!socket) return;
+        if (clientInitialRequest.type !== 'create-room') return;
+        if (room) return;
+
+        console.log('emit: create-room');
+
+        const { type, ...rest } = clientInitialRequest;
+        socket.emit('create-room', rest);
+
+        return () => {
+            if (!socket) return;
+            socket.off('create-room');
         };
     });
 
     useEffect(() => {
-        if (!socket || clientInitialRequest.type !== 'join-room') return;
+        if (!socket) return;
 
-        socket.on(SocketConnectionEvent.connection.success, (data) => {
-            const expected = data as Room;
-            console.log(expected);
-            if (!expected) return;
-            setRoom(expected);
+        socket.on('create-room', (data) => {
+            console.log('on: create-room');
+            console.log(data);
+
+            setRoom({ participants: data.participants, ID: data.roomID });
         });
 
         return () => {
-            socket.off(SocketConnectionEvent.connection.success);
+            if (!socket) return;
+            socket.off('create-room');
+        };
+    });
+
+
+    useEffect(() => {
+        if (!socket) return;
+        
+        socket.on('join-room', (data) => {
+            if (!clientInitialRequest.roomID) return;
+
+            setRoom({ participants: data.participants, ID: clientInitialRequest.roomID });
+        });
+
+        return () => {
+            if (!socket) return;
+            socket.off('join-room');
         };
     });
 

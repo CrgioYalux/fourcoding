@@ -1,24 +1,25 @@
-import io, { Socket } from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 
-type useSocketState = {
-    socket: Socket | null,
+interface ServerToClientEvents {
+    'connection-success': () => void;
+    'connection-error': (data: {msgs: string[]}) => void;
+    'error': (data: {msgs: string[]}) => void;
+};
+
+interface ClientToServerEvents {
+};
+
+type useSocketState<T> = {
+    socket: Socket<ServerToClientEvents, ClientToServerEvents> & T | null,
     connected: boolean,
     error: boolean,
     logs: string[],
-}
+};
 
-const SocketConnectionEvent = {
-    connection: {
-        init: 'connect',
-        end: 'disconnect',
-        error: 'connection-error',
-        success: 'connection-success'
-    }
-} as const;
-
-function useSocket(url: string, path: string, queryKey: string, queryValue: any): useSocketState {
-    const socketRef = useRef<Socket | null>(null);
+function useSocket<T extends Socket>(url: string, path: string, queryKey?: string, queryValue?: any): useSocketState<T> {
+    const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> & T | null>(null);
     const [connected, setConnected] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [logs, setLogs] = useState<string[]>([]);
@@ -27,12 +28,12 @@ function useSocket(url: string, path: string, queryKey: string, queryValue: any)
         const socketConnection = io(url, {
             transports: ['polling', 'websocket', 'flashsocket'],
             path: path,
-            query: {
+            query: (queryKey) ? {
                 [queryKey]: JSON.stringify(queryValue),
-            },
+            } : undefined,
         });
 
-        socketRef.current = socketConnection;
+        socketRef.current = socketConnection as Socket<ServerToClientEvents, ClientToServerEvents> & T;
 
         return () => {
             if (!socketRef.current) return;
@@ -43,80 +44,63 @@ function useSocket(url: string, path: string, queryKey: string, queryValue: any)
     useEffect(() => {
         if (!socketRef.current) return;
 
-        socketRef.current.on(SocketConnectionEvent.connection.init, () => {
+        socketRef.current.on('connect', () => {
             setConnected(true);
             setError(false);
         });
 
         return () => {
             if (!socketRef.current) return;
-            socketRef.current.off(SocketConnectionEvent.connection.init);
+            socketRef.current.off('connect');
         };
     });
 
     useEffect(() => {
         if (!socketRef.current) return;
 
-        socketRef.current.on(SocketConnectionEvent.connection.success, (data) => {
-            setConnected(true);
-            setError(false);
-
-            const expected = data as { msgs: string[] };
-            //console.log({ expected });
-            if (!expected || !expected.msgs || expected.msgs.length === 0) return;
-
-            setLogs((prev) => [...prev, ...expected.msgs]);
+        socketRef.current.on('error', (data) => {
+            setLogs((prev) => [...prev, ...data.msgs]);
         });
 
         return () => {
             if (!socketRef.current) return;
-            socketRef.current.off(SocketConnectionEvent.connection.success);
+            socketRef.current.off('error');
         };
     });
 
     useEffect(() => {
         if (!socketRef.current) return;
-
-        socketRef.current.on(SocketConnectionEvent.connection.error, (data) => {
-
+        
+        socketRef.current.on('connect_error', (error) => {
             setConnected(false);
             setError(true);
-
-            const expected = data as { msgs: string[] };
-            if (!expected || !expected.msgs || expected.msgs.length === 0) return;
-
-            setLogs((prev) => [...prev, ...expected.msgs]);
+            setLogs((prev) => [...prev, error.message]);
         });
 
         return () => {
             if (!socketRef.current) return;
-            socketRef.current.off(SocketConnectionEvent.connection.error);
+            socketRef.current.off('connect_error');
         };
     });
 
     useEffect(() => {
         if (!socketRef.current) return;
 
-        socketRef.current.on(SocketConnectionEvent.connection.end, (reason) => {
-
+        socketRef.current.on('disconnect', (reason) => {
             setConnected(false);
             setError(false);
+            setLogs((prev) => [...prev, reason]);
 
-            if (reason) {
-                setLogs((prev) => [...prev, reason]);
-            };
-
-            socketRef.current = null
+            // socketRef.current = null;
         });
 
         return () => {
             if (!socketRef.current) return;
-            socketRef.current.off(SocketConnectionEvent.connection.end);
+            socketRef.current.off('disconnect');
         };
     });
 
     return { socket: socketRef.current, connected, error, logs };
 }
 
-export { SocketConnectionEvent };
 export default useSocket;

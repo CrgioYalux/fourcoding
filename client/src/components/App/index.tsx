@@ -12,18 +12,26 @@ const style: React.CSSProperties = {
     borderRadius: '50%',
 };
 
-function App() {
-    const { connected, logs } = useSocketContext();
+const WhereContextExists: React.FC<{}> = () => {
+    const { connected, logs, room } = useSocketContext();
+    return (
+        <div className='WhereContextExists'>
+            <div
+            style={{...style, backgroundColor: connected ? 'green' : 'red' }}
+            >connected: {connected ? 'yes' : 'no'}</div>
+            <ul>{logs.map((m, i) => <li key={`${i}-${[...m].filter((c) => c === ' ').join('').toUpperCase()}`}>{m}</li>)}</ul>
+            <pre>{JSON.stringify(room, null, 2)}</pre>
+        </div>
+    );
+};
 
+function App() {
     return (
         <ProviderWrapper>
             <div className='App'>
-                  <strong>nothing to see here - yet</strong>
-                  <Loader />
-                  <div
-                    style={{...style, backgroundColor: connected ? 'green' : 'red' }}
-                  >connected: {connected ? 'yes' : 'no'}</div>
-                  <ul>{logs.map((m) => <li>{m}</li>)}</ul>
+                <strong>nothing to see here - yet</strong>
+                <Loader />
+                <WhereContextExists />
             </div>
         </ProviderWrapper>
     )
