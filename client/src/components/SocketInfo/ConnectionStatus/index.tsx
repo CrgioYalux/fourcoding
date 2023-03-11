@@ -1,0 +1,20 @@
+import { useSocketContext } from "../../../providers/Socket";
+
+const style: React.CSSProperties = {
+    width: 50,
+    height: 50,
+    aspectRatio: 1,
+    borderRadius: '50%',
+};
+
+const ConnectionStatus: React.FC<{}> = ({}) => {
+    const { connected } = useSocketContext();
+
+    return (
+        <div
+        style={{...style, backgroundColor: connected ? 'green' : 'red' }}
+        >connected: {connected ? 'yes' : 'no'}</div>
+    );
+};
+
+export default ConnectionStatus;
