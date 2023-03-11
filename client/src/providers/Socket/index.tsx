@@ -41,7 +41,6 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path, cl
         if (clientInitialRequest.type !== 'join-room') return;
         if (!clientInitialRequest.roomID) return;
 
-        console.log('join-room');
         socket.emit('join-room', {
             roomID: clientInitialRequest.roomID,
             username: clientInitialRequest.username,
@@ -52,14 +51,12 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path, cl
             if (!socket) return;
             socket.off('join-room');
         };
-    }, [clientInitialRequest]);
+    });
 
     useEffect(() => {
         if (!socket) return;
         if (clientInitialRequest.type !== 'create-room') return;
         if (room) return;
-
-        console.log('emit: create-room');
 
         const { type, ...rest } = clientInitialRequest;
         socket.emit('create-room', rest);
@@ -74,9 +71,6 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path, cl
         if (!socket) return;
 
         socket.on('create-room', (data) => {
-            console.log('on: create-room');
-            console.log(data);
-
             setRoom({ participants: data.participants, ID: data.roomID });
         });
 
@@ -92,7 +86,6 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path, cl
         
         socket.on('join-room', (data) => {
             if (!clientInitialRequest.roomID) return;
-
             setRoom({ participants: data.participants, ID: clientInitialRequest.roomID });
         });
 
