@@ -1,7 +1,7 @@
 import Loader from '../Loader';
 import ProviderWrapper from '../ProviderWrapper';
-import SocketInfo from '../SocketInfo';
 import Login from '../Login';
+import TimedRender from '../TimedRender';
 
 import './App.css';
 
@@ -18,7 +18,12 @@ function App() {
     return (
         <ProviderWrapper>
             <div className='App'>
-                <Login />
+                <TimedRender mode='for' seconds={2}>
+                    <Loader />
+                </TimedRender>
+                <TimedRender mode='after' seconds={2}>
+                    <Login />
+                </TimedRender>
             </div>
         </ProviderWrapper>
     );
