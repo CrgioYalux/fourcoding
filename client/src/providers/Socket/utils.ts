@@ -19,6 +19,8 @@ interface CustomClientToServerEvents {
 interface CustomServerToClientEvents {
     'create-room'     : (data: {roomID: string, participants: (string | null)[]}) => void;
     'join-room'       : (data: {roomID: string, participants: (string | null)[]}) => void;
+    'left-room'       : (data: {roomID: string, participants: (string | null)[]}) => void;
+
 
     'send-full-editor': (data: {js: string, html: string, css: string}) => void;
     'send-js-editor'  : (data: {js: string}) => void;

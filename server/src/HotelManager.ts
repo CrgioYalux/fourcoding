@@ -124,6 +124,10 @@ class HotelManager<T extends number, K> {
         return roomID;
     }
 
+    public deleteRoom(roomID: string): boolean {
+        return this.hotel.delete(roomID);
+    }
+
     private createHostedsArray(): FixedLengthArray<Hosted<K>, T> {
         const arr = new Array<Hosted<K>>(this.roomLength).fill(null);
 

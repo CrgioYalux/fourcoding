@@ -23,7 +23,9 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
     cors: CONFIG.CORS,
 });
 
-const hotel = new HotelManager<4, Client>(4);
+
+const ROOM_SIZE = 4;
+const hotel = new HotelManager<typeof ROOM_SIZE, Client>(ROOM_SIZE);
 
 io.on('connect', (socket) => {
     socket.on('join-room', async (data) => {
@@ -104,13 +106,22 @@ io.on('connect', (socket) => {
         if (checkOperation.out) {
             const removedParticipantID = checkOperation.out.participants.findIndex((p) => p && (p.id === socket.id));
             hotel.removeFromRoom(socket.data.clientHandshake.roomID, removedParticipantID);
+
+            const recheckOperation = hotel.checkRoom(socket.data.clientHandshake.roomID, socket.data.clientHandshake.password);
+            if (recheckOperation.out) {
+                if (recheckOperation.out.participants.filter((p) => p === null).length === ROOM_SIZE) {
+                    hotel.deleteRoom(socket.data.clientHandshake.roomID);
+                }
+                else {
+                    socket.broadcast.to(socket.data.clientHandshake.roomID).emit('left-room', {
+                        roomID: socket.data.clientHandshake.roomID,
+                        participants: [...recheckOperation.out.participants.map((p) => p ? p.username : null)],
+                    });
+                }
+            }
         }
 
         socket.leave(socket.data.clientHandshake.roomID);
-
-        // TODO
-        // 1. emit that someone has left still missing
-        // 2. delete room from hotel since it wont be again
     });
 });
 

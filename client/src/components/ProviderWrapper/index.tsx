@@ -9,7 +9,7 @@ interface ProviderWrapperProps {
 
 const ProviderWrapper: React.FC<ProviderWrapperProps> = ({ children }) => {
     return (
-        <SocketProvider url={url} path={path} clientInitialRequest={{ username: 'Azul' }}>
+        <SocketProvider url={url} path={path}>
             {children}
         </SocketProvider>
     );

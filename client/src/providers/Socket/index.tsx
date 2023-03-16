@@ -40,15 +40,13 @@ const SocketContext = createContext<SocketContext>({
 
 const useSocketContext = () => useContext<SocketContext>(SocketContext);
 
-
 interface SocketProviderProps {
     children: React.ReactNode;
     url: string;
     path: string;
-    clientInitialRequest: Partial<ClientInitialRequest>;
 };
 
-const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path, clientInitialRequest }) => {
+const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path }) => {
     const { socket, connected, error, logs } = useSocket<Socket<CustomServerToClientEvents, CustomClientToServerEvents>>(url, path);
     const [room, setRoom] = useState<Room | null>(null);
 
@@ -89,6 +87,14 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children, url, path, cl
             if (!socket) return;
             socket.off('get-full-editor');
         };
+    });
+
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on('left-room', (data) => {
+            setRoom({ participants: data.participants, ID: data.roomID });
+        });
     });
 
     const state: SocketContextState = {
