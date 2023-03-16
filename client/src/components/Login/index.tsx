@@ -1,18 +1,54 @@
 import { useState } from "react";
 import SwitchLoginType from "./SwitchLoginType";
 import InputText from "../Generics/InputText";
+import { useSocketContext } from '../../providers/Socket/';
 
 import './Login.css';
 
+// TODO
+// 1. display in some way login errors provided by socket context
+
 const Login: React.FC<{}> = () => {
     const [loginType, setLoginType] = useState<'join-room'|'create-room'>('create-room');
+    const { state, actions } = useSocketContext();
     
-    const switchLoginType = () => {
+    const switchLoginType = (): void => {
         setLoginType((prev) => prev === 'join-room' ? 'create-room' : 'join-room');
     };
 
+    const handleSubmit = (event: React.SyntheticEvent): void => {
+        event.preventDefault();
+
+        const form = event.target as HTMLFormElement & {
+            username_input: HTMLInputElement,
+            password_input: HTMLInputElement,
+            roomID_input?: HTMLInputElement,
+        };
+
+        if (loginType === 'join-room') {
+            if (!form.roomID_input?.value) return;
+
+            const data = {
+                roomID: form.roomID_input.value,
+                username: !form.username_input.value ? undefined : form.username_input.value,
+                password: !form.password_input.value ? undefined : form.password_input.value,
+            };
+
+            actions.joinRoom(data);
+        }
+        else {
+            const data = {
+                username: !form.username_input.value ? undefined : form.username_input.value,
+                password: !form.password_input.value ? undefined : form.password_input.value,
+            };
+
+            actions.createRoom(data);
+        }
+    };
+
     return (
-        <form className='Login'>
+        <form onSubmit={handleSubmit} className='Login'>
+            <pre>{JSON.stringify(state.room, null, 2)}</pre>
             <SwitchLoginType label={loginType.split('-').join(' ')} checked={loginType === 'create-room'} switchChecked={switchLoginType} />
             <div className='Login__inputs_box'>
                 <InputText name='username_input' label='username' htmlFor='username_input' className={'InputText'} />

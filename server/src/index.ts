@@ -23,10 +23,9 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
     cors: CONFIG.CORS,
 });
 
-const hotel = new HotelManager<4, Client>();
+const hotel = new HotelManager<4, Client>(4);
 
 io.on('connect', (socket) => {
-
     socket.on('join-room', async (data) => {
         const checkOp = hotel.checkRoom(data.roomID, data.password);
 
@@ -47,9 +46,15 @@ io.on('connect', (socket) => {
         }
 
         await socket.join(data.roomID);
-        socket.emit('join-room', { participants: [...joinOp.out.participants.map((p) => p ? p.username : null)] });
 
-        socket.broadcast.to(data.roomID).emit('get-full-editor');
+        const room = {
+            roomID: data.roomID,
+            participants: [...joinOp.out.participants.map((p) => p ? p.username : null)],
+        };
+
+        socket.emit('join-room', room);
+
+        socket.broadcast.to(data.roomID).emit('get-full-editor', room);
 
         socket.data.clientHandshake = {
             roomID: data.roomID,
@@ -57,7 +62,7 @@ io.on('connect', (socket) => {
             password: data.password,
         };
     });
-    socket.on('create-room', (data) => {
+    socket.on('create-room', async (data) => {
         const username = data.username ?? generateUsername();
 
         const roomID = hotel.createRoom({
@@ -65,7 +70,12 @@ io.on('connect', (socket) => {
             id: socket.id,
         }, data.password);
 
-        socket.emit('create-room', { roomID, participants: [username, null, null, null] });
+        await socket.join(roomID);
+
+        socket.emit('create-room', {
+            roomID,
+            participants: [username, null, null, null]
+        });
 
         socket.data.clientHandshake = {
             roomID: roomID,
@@ -97,6 +107,10 @@ io.on('connect', (socket) => {
         }
 
         socket.leave(socket.data.clientHandshake.roomID);
+
+        // TODO
+        // 1. emit that someone has left still missing
+        // 2. delete room from hotel since it wont be again
     });
 });
 

@@ -8,12 +8,12 @@ const style: React.CSSProperties = {
 };
 
 const ConnectionStatus: React.FC<{}> = ({}) => {
-    const { connected } = useSocketContext();
+    const { state } = useSocketContext();
 
     return (
         <div
-        style={{...style, backgroundColor: connected ? 'green' : 'red' }}
-        >connected: {connected ? 'yes' : 'no'}</div>
+        style={{...style, backgroundColor: state.connected ? 'green' : 'red' }}
+        >connected: {state.connected ? 'yes' : 'no'}</div>
     );
 };
 

@@ -15,11 +15,11 @@ type Hotel<T extends number, K> = Map<string, Room<T, Hosted<K>>>;
 
 class HotelManager<T extends number, K> {
     private hotel: Hotel<T, K>;
-    private roomLength: T;
+    private roomLength: number;
 
-    constructor() {
+    constructor(roomLength: number) {
         this.hotel = new Map();
-        this.roomLength = this.createHostedsArray().length;
+        this.roomLength = roomLength;
     }
 
     public joinRoom(roomID: string, participant: Hosted<K>, key?: string): OperationResult<Room<T, Hosted<K>>> {
@@ -38,7 +38,7 @@ class HotelManager<T extends number, K> {
                 msgs: [`Room key is incorrect`],
             };
         }
-
+        
         const emptySpaceIdx = room.participants.findIndex((p) => p === null);
 
         if (emptySpaceIdx === -1) {

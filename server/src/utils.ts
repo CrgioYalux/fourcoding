@@ -15,9 +15,9 @@ type ClientInitialRequest = {
 interface ServerToClientEvents {
     'error': (data: {msgs: string[]}) => void;
 
-    'get-full-editor': () => void;
+    'get-full-editor': (data: {roomID: string, participants: (string | null)[]}) => void;
 
-    'join-room': (data: {participants: (string | null)[]}) => void;
+    'join-room': (data: {roomID: string, participants: (string | null)[]}) => void;
     'create-room': (data: {roomID: string, participants: (string | null)[]}) => void;
 
     'send-full-editor': (data: {js: string, html: string, css: string}) => void;
