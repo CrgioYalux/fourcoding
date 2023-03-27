@@ -3,10 +3,10 @@ import './Editor.css';
 interface EditorTextareaProps {
     editing: 'JS' | 'HTML' | 'CSS';
     value: string;
-    setValue: React.Dispatch<React.SetStateAction<string>>;
+    onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
 
-const EditorTextarea: React.FC<EditorTextareaProps> = ({ editing, value, setValue }) => {
+const EditorTextarea: React.FC<EditorTextareaProps> = ({ editing, value, onChange }) => {
     return (
         <div className={`EditorTextarea --editing-${editing}`}>
             <div className='EditorTextArea__corner'></div>
@@ -16,7 +16,7 @@ const EditorTextarea: React.FC<EditorTextareaProps> = ({ editing, value, setValu
             <span>{editing}</span>
             <textarea 
                 value={value}
-                onChange={(event) => setValue(event.target.value)}
+                onChange={onChange}
                 spellCheck={false}
             >
             </textarea>

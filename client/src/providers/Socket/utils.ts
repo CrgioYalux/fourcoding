@@ -10,6 +10,8 @@ interface CustomClientToServerEvents {
     'create-room'     : (data: Partial<ClientInitialRequest>) => void;
     'join-room'       : (data: OneRequiredRestOptional<ClientInitialRequest, 'roomID'>) => void;
 
+    'get-full-editor' : () => void;
+
     'send-full-editor': (data: {js: string, html: string, css: string}) => void;
     'send-js-editor'  : (data: {js: string}) => void;
     'send-html-editor': (data: {html: string}) => void;
@@ -21,13 +23,12 @@ interface CustomServerToClientEvents {
     'join-room'       : (data: {roomID: string, participants: (string | null)[]}) => void;
     'left-room'       : (data: {roomID: string, participants: (string | null)[]}) => void;
 
+    'get-full-editor' : () => void;
 
     'send-full-editor': (data: {js: string, html: string, css: string}) => void;
     'send-js-editor'  : (data: {js: string}) => void;
     'send-html-editor': (data: {html: string}) => void;
     'send-css-editor' : (data: {css: string}) => void;
-
-    'get-full-editor' : (data: {roomID: string, participants: (string | null)[]}) => void;
 };
 
 

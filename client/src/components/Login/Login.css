@@ -143,6 +143,10 @@
     cursor: pointer;
 }
 
+.Login > strong {
+    color: var(--unsuccess-color);
+}
+
 @keyframes SwitchLoginTypeOpacityChangeAnim1 {
     0% {
         bottom: 0;

@@ -26,6 +26,7 @@ function useSocket<T extends Socket>(url: string, path: string, queryKey?: strin
 
     useEffect(() => {
         const socketConnection = io(url, {
+            autoConnect: true,
             transports: ['polling', 'websocket', 'flashsocket'],
             path: path,
             query: (queryKey) ? {
@@ -49,42 +50,15 @@ function useSocket<T extends Socket>(url: string, path: string, queryKey?: strin
             setError(false);
         });
 
-        return () => {
-            if (!socketRef.current) return;
-            socketRef.current.off('connect');
-        };
-    });
-
-    useEffect(() => {
-        if (!socketRef.current) return;
-
         socketRef.current.on('error', (data) => {
             setLogs((prev) => [...prev, ...data.msgs]);
         });
 
-        return () => {
-            if (!socketRef.current) return;
-            socketRef.current.off('error');
-        };
-    });
-
-    useEffect(() => {
-        if (!socketRef.current) return;
-        
         socketRef.current.on('connect_error', (error) => {
             setConnected(false);
             setError(true);
-            setLogs((prev) => [...prev, error.message]);
+            setLogs((prev) => [...prev, error.message === 'xhr poll error' ? 'disconnected from server' : error.message]);
         });
-
-        return () => {
-            if (!socketRef.current) return;
-            socketRef.current.off('connect_error');
-        };
-    });
-
-    useEffect(() => {
-        if (!socketRef.current) return;
 
         socketRef.current.on('disconnect', (reason) => {
             setConnected(false);
@@ -96,6 +70,9 @@ function useSocket<T extends Socket>(url: string, path: string, queryKey?: strin
 
         return () => {
             if (!socketRef.current) return;
+            socketRef.current.off('connect');
+            socketRef.current.off('error');
+            socketRef.current.off('connect_error');
             socketRef.current.off('disconnect');
         };
     });

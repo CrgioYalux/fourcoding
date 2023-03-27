@@ -23,7 +23,6 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
     cors: CONFIG.CORS,
 });
 
-
 const ROOM_SIZE = 4;
 const hotel = new HotelManager<typeof ROOM_SIZE, Client>(ROOM_SIZE);
 
@@ -55,8 +54,9 @@ io.on('connect', (socket) => {
         };
 
         socket.emit('join-room', room);
+        socket.broadcast.to(data.roomID).emit('join-room', room);
 
-        socket.broadcast.to(data.roomID).emit('get-full-editor', room);
+        socket.broadcast.to(data.roomID).emit('get-full-editor');
 
         socket.data.clientHandshake = {
             roomID: data.roomID,
@@ -85,17 +85,25 @@ io.on('connect', (socket) => {
             password: data.password,
         };
     });
-    socket.on('send-full-editor', (data) => {
-        socket.broadcast.emit('send-full-editor', data);
+    socket.on('get-full-editor', () => {
+        if (!socket.data.clientHandshake) return;
+        socket.broadcast.to(socket.data.clientHandshake.roomID).emit('get-full-editor');
     });
-    socket.on('send-js-editor', (data) => {
-        socket.broadcast.emit('send-js-editor', data);
+    socket.on('send-full-editor', (data) => {
+        if (!socket.data.clientHandshake) return;
+        socket.broadcast.to(socket.data.clientHandshake.roomID).emit('send-full-editor', data);
     });
     socket.on('send-html-editor', (data) => {
-        socket.broadcast.emit('send-html-editor', data);
+        if (!socket.data.clientHandshake) return;
+        socket.broadcast.to(socket.data.clientHandshake.roomID).emit('send-html-editor', data);
     });
     socket.on('send-css-editor', (data) => {
-        socket.broadcast.emit('send-css-editor', data);
+        if (!socket.data.clientHandshake) return;
+        socket.broadcast.to(socket.data.clientHandshake.roomID).emit('send-css-editor', data);
+    });
+    socket.on('send-js-editor', (data) => {
+        if (!socket.data.clientHandshake) return;
+        socket.broadcast.to(socket.data.clientHandshake.roomID).emit('send-js-editor', data);
     });
 
     socket.on('disconnect', () => {
