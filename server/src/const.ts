@@ -3,7 +3,7 @@ import path from 'path';
 import type { CorsOptions } from 'cors';
 
 const CORS: CorsOptions = {
-    origin: '*',
+    origin: false,
 };
 
 const PATH_TO_BUILD: string =

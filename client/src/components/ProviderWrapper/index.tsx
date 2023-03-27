@@ -1,7 +1,10 @@
 import SocketProvider from "../../providers/Socket";
 
-const url: string = 'http://127.0.0.1:4000';
+const port = process.env.PORT;
+const url: string = `localhost:${port}`;
 const path: string = '/socket/';
+
+console.log(port);
 
 interface ProviderWrapperProps {
     children: React.ReactNode;
