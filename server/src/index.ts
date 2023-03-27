@@ -10,7 +10,7 @@ import HotelManager from './HotelManager';
 import type { ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData } from './utils';
 
 const app = express();
-app.use(cors(CONFIG.CORS));
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(CONFIG.PATH_TO_BUILD));
