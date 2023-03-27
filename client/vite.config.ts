@@ -7,6 +7,7 @@ export default defineConfig({
   define: {
     'process.env': {
       PORT: process.env.PORT ?? '4000',
+      URL: process.env.URL ?? 'localhost',
     },
   }
 })
