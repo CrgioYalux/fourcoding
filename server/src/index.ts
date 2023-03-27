@@ -13,7 +13,10 @@ const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(CONFIG.PATH_TO_BUILD));
+app.use('/', express.static(CONFIG.PATH_TO_BUILD));
+app.get('/health', (req, res) => {
+    res.status(200).send('safe and sound').end();
+});
 
 const server = http.createServer(app);
 
