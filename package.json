@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "author": "https://github.com/CrgioYalux",
+  "description": "HTML + JS + CSS Editor for up to 4 people.",
   "license": "MIT",
   "workspaces": [
     "client",
