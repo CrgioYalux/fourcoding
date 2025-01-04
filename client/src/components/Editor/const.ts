@@ -62,9 +62,9 @@ body > div {
 `;
 
 const DEFAULT = {
-    HTML,
-    CSS,
-    JS,
+	HTML,
+	CSS,
+	JS,
 };
 
 export default DEFAULT;

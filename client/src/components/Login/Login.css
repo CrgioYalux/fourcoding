@@ -1,178 +1,181 @@
 .InputText {
-    flex: 1 1 auto;
+	flex: 1 1 auto;
 
-    display: flex;
-    flex-direction: row;
+	display: flex;
+	flex-direction: row;
 
-    color: inherit
+	color: inherit;
 }
 
 .InputText > input {
-    flex: 1 1 auto;
-    min-width: 30ch;
+	flex: 1 1 auto;
+	min-width: 30ch;
 }
 
 .InputText > span {
-    flex: 0 0 30%;
-    color: inherit;
+	flex: 0 0 30%;
+	color: inherit;
 }
 
-.SwitchLoginType > input[type="checkbox"] {
-    display: none;
+.SwitchLoginType > input[type='checkbox'] {
+	display: none;
 }
 
 .SwitchLoginTypeBT {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 5px;
 
-    color: inherit;
+	color: inherit;
 }
 
 .SwitchLoginTypeBT > span {
-    position: relative;
-    color: inherit;
-    font-weight: 600;
-    font-size: .75em;
-    animation: SwitchLoginTypeOpacityChangeAnim1 .35s ease-out forwards; 
+	position: relative;
+	color: inherit;
+	font-weight: 600;
+	font-size: 0.75em;
+	animation: SwitchLoginTypeOpacityChangeAnim1 0.35s ease-out forwards;
 }
 
-.SwitchLoginType > input[type="checkbox"]:checked ~ .SwitchLoginTypeBT > span {
-    animation: SwitchLoginTypeOpacityChangeAnim2 .35s ease-out forwards;
+.SwitchLoginType > input[type='checkbox']:checked ~ .SwitchLoginTypeBT > span {
+	animation: SwitchLoginTypeOpacityChangeAnim2 0.35s ease-out forwards;
 }
 
 .SwitchLoginTypeBT > button {
-    width: 100%;
-    aspect-ratio: 16/9;
+	width: 100%;
+	aspect-ratio: 16/9;
 
-    max-width: 7ch;
-    padding: 4px;
+	max-width: 7ch;
+	padding: 4px;
 
-    outline: 0;
-    border: 0;
+	outline: 0;
+	border: 0;
 
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 
-    color: inherit;
-    background: transparent;
+	color: inherit;
+	background: transparent;
 
-    border: 2px solid currentColor;
-    border-radius: 9px;
+	border: 2px solid currentColor;
+	border-radius: 9px;
 
-    cursor: pointer;
+	cursor: pointer;
 }
 
-.SwitchLoginType > input[type="checkbox"]:checked ~ .SwitchLoginTypeBT > button {
-    align-items: flex-end;
+.SwitchLoginType
+	> input[type='checkbox']:checked
+	~ .SwitchLoginTypeBT
+	> button {
+	align-items: flex-end;
 }
 
 .SwitchLoginTypeBT > button > span {
-    height: 100%;
-    aspect-ratio: 1;
+	height: 100%;
+	aspect-ratio: 1;
 
-    display: block;
+	display: block;
 
-    color: inherit;
-    background: currentColor;
-    border-radius: 5px;
+	color: inherit;
+	background: currentColor;
+	border-radius: 5px;
 }
 
 .Login {
-    --Login-background: var(--secondary-color-l-base);
-    --Login-color: var(--brand-color-l-high);
+	--Login-background: var(--secondary-color-l-base);
+	--Login-color: var(--brand-color-l-high);
 
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
 
-    font-size: 1rem;
+	font-size: 1rem;
 
-    color: var(--Login-color);
+	color: var(--Login-color);
 }
 
 .Login__inputs_box {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 
-    color: inherit;
+	color: inherit;
 }
 
 .Login input {
-    padding: 0 2px;
+	padding: 0 2px;
 
-    outline: 0;
-    border: 1px solid currentColor;
+	outline: 0;
+	border: 1px solid currentColor;
 
-    text-align: center;
-    color: var(--Login-color);
-    background: var(--Login-background);
+	text-align: center;
+	color: var(--Login-color);
+	background: var(--Login-background);
 }
 
-.Login input:focus, 
+.Login input:focus,
 .Login button:focus {
-    outline: 1px solid currentColor;
-    outline-offset: 2px;
+	outline: 1px solid currentColor;
+	outline-offset: 2px;
 }
 
-.Login input:not([type="submit"])::selection {
-    background: var(--Login-color);
-    color: var(--Login-background);
+.Login input:not([type='submit'])::selection {
+	background: var(--Login-color);
+	color: var(--Login-background);
 }
 
 .Login > input {
-    align-self: flex-end;
+	align-self: flex-end;
 
-    width: max-content; 
+	width: max-content;
 
-    font-size: 1.2em;
-    padding: .15em .35em;
+	font-size: 1.2em;
+	padding: 0.15em 0.35em;
 
-    border: 0;
-    border-radius: 3px;
+	border: 0;
+	border-radius: 3px;
 
-    outline-color: var(--Login-color) !important;
+	outline-color: var(--Login-color) !important;
 
-    background: var(--Login-color);
-    color: var(--Login-background);
+	background: var(--Login-color);
+	color: var(--Login-background);
 
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .Login > strong {
-    color: var(--unsuccess-color);
+	color: var(--unsuccess-color);
 }
 
 @keyframes SwitchLoginTypeOpacityChangeAnim1 {
-    0% {
-        bottom: 0;
-        opacity: .8;
-    }
-    50% {
-        bottom: 10px;
-        opacity: 1;
-    }
-    100% {
-        bottom: 0;
-        opacity: .5;
-    }
+	0% {
+		bottom: 0;
+		opacity: 0.8;
+	}
+	50% {
+		bottom: 10px;
+		opacity: 1;
+	}
+	100% {
+		bottom: 0;
+		opacity: 0.5;
+	}
 }
 
 @keyframes SwitchLoginTypeOpacityChangeAnim2 {
-    0% {
-        bottom: 0;
-        opacity: .8;
-    }
-    50% {
-        bottom: 10px;
-        opacity: 1;
-    }
-    100% {
-        bottom: 0;
-        opacity: .5;
-    }
+	0% {
+		bottom: 0;
+		opacity: 0.8;
+	}
+	50% {
+		bottom: 10px;
+		opacity: 1;
+	}
+	100% {
+		bottom: 0;
+		opacity: 0.5;
+	}
 }

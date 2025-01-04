@@ -1,12 +1,12 @@
 .App {
-  width: 95vw;
-  height: 95vh;
+	width: 95vw;
+	height: 95vh;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
 
-  color: var(--brand-color-l-base);
+	color: var(--brand-color-l-base);
 }

@@ -1,116 +1,132 @@
 .Editor {
-    position: relative;
+	position: relative;
 
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 
-    margin-top: auto;
-    margin-bottom: 0;
+	margin-top: auto;
+	margin-bottom: 0;
 
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 5px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 5px;
 }
 
 .EditorTextArea__corner {
-    --EditorTextArea__corner--width: 2px;
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    
-    border: var(--EditorTextArea__corner--width) solid var(--brand-color-l-highest);
+	--EditorTextArea__corner--width: 2px;
+	position: absolute;
+	width: 50px;
+	height: 50px;
+
+	border: var(--EditorTextArea__corner--width) solid
+		var(--brand-color-l-highest);
 }
 
 .EditorTextArea__corner:nth-child(1) {
-    top: 0;
-    left: 0;
-    border-width: var(--EditorTextArea__corner--width) 0 0 var(--EditorTextArea__corner--width);
+	top: 0;
+	left: 0;
+	border-width: var(--EditorTextArea__corner--width) 0 0
+		var(--EditorTextArea__corner--width);
 }
 
 .EditorTextArea__corner:nth-child(2) {
-    top: 0;
-    right: 0;
-    border-width: var(--EditorTextArea__corner--width) var(--EditorTextArea__corner--width) 0 0;
+	top: 0;
+	right: 0;
+	border-width: var(--EditorTextArea__corner--width)
+		var(--EditorTextArea__corner--width) 0 0;
 }
 
 .EditorTextArea__corner:nth-child(3) {
-    bottom: 0;
-    left: 0;
-    border-width: 0 0 var(--EditorTextArea__corner--width) var(--EditorTextArea__corner--width);
+	bottom: 0;
+	left: 0;
+	border-width: 0 0 var(--EditorTextArea__corner--width)
+		var(--EditorTextArea__corner--width);
 }
 
 .EditorTextArea__corner:nth-child(4) {
-    bottom: 0;
-    right: 0;
-    border-width: 0 var(--EditorTextArea__corner--width) var(--EditorTextArea__corner--width) 0;
+	bottom: 0;
+	right: 0;
+	border-width: 0 var(--EditorTextArea__corner--width)
+		var(--EditorTextArea__corner--width) 0;
 }
 
 .Preview {
-    border: 0;
+	border: 0;
 }
 
-.EditorTextarea, 
+.EditorTextarea,
 .Preview {
-    flex: 1 1 calc(50% - 5px);
-    aspect-ratio: 16/9;
+	flex: 1 1 calc(50% - 5px);
+	aspect-ratio: 16/9;
 }
 
 @media screen and (max-width: 640px) {
-    .EditorTextarea, 
-    .Preview {
-        flex: 0 0 calc(100% - 5px);
-        aspect-ratio: 16/9;
-    }
+	.EditorTextarea,
+	.Preview {
+		flex: 0 0 calc(100% - 5px);
+		aspect-ratio: 16/9;
+	}
 }
 
 .EditorTextarea {
-    --EditorTextArea-JS-color: hsl(50, 90%, 50%);
-    --EditorTextArea-HTML-color: hsl(0, 90%, 50%);
-    --EditorTextArea-CSS-color: hsl(220, 90%, 50%);
+	--EditorTextArea-JS-color: hsl(50, 90%, 50%);
+	--EditorTextArea-HTML-color: hsl(0, 90%, 50%);
+	--EditorTextArea-CSS-color: hsl(220, 90%, 50%);
 
-    position: relative;
+	position: relative;
 
-    font-size: 1em;
+	font-size: 1em;
 }
 
 .EditorTextarea > span {
-    position: absolute;
-    bottom: 5px;
-    right: 10px;
+	position: absolute;
+	bottom: 5px;
+	right: 10px;
 
-    font-size: .85em;
-    font-weight: 600;
-    letter-spacing: 2px;
-    opacity: .5;
+	font-size: 0.85em;
+	font-weight: 600;
+	letter-spacing: 2px;
+	opacity: 0.5;
 }
 
 .EditorTextarea > textarea {
-    width: 100%;
-    height: 100%;
-    resize: none;
-    
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: 1em;
-    padding: .5em;
+	width: 100%;
+	height: 100%;
+	resize: none;
 
-    background-color: black;
-    color: var(--brand-color-l-highest);
-    border: 0;
+	font-family:
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		Roboto,
+		Oxygen,
+		Ubuntu,
+		Cantarell,
+		'Open Sans',
+		'Helvetica Neue',
+		sans-serif;
+	font-size: 1em;
+	padding: 0.5em;
+
+	background-color: black;
+	color: var(--brand-color-l-highest);
+	border: 0;
 }
 
 .EditorTextarea > textarea:focus {
-    outline: 1px solid var(--brand-color-l-highest);
+	outline: 1px solid var(--brand-color-l-highest);
 }
 
 .EditorTextarea.--editing-JS {
-    color: var(--EditorTextArea-JS-color);
+	color: var(--EditorTextArea-JS-color);
 }
 
 .EditorTextarea.--editing-HTML {
-    color: var(--EditorTextArea-HTML-color);
+	color: var(--EditorTextArea-HTML-color);
 }
 
 .EditorTextarea.--editing-CSS {
-    color: var(--EditorTextArea-CSS-color);
+	color: var(--EditorTextArea-CSS-color);
 }

@@ -7,132 +7,147 @@ import type { FixedLengthArray } from './FixedLengthArray';
 type Hosted<T> = T | null;
 
 type Room<T extends number, K> = {
-    participants: FixedLengthArray<Hosted<K>, T>,
-    key?: string,
-}
+	participants: FixedLengthArray<Hosted<K>, T>;
+	key?: string;
+};
 
 type Hotel<T extends number, K> = Map<string, Room<T, Hosted<K>>>;
 
 class HotelManager<T extends number, K> {
-    private hotel: Hotel<T, K>;
-    private roomLength: number;
+	private hotel: Hotel<T, K>;
+	private roomLength: number;
 
-    constructor(roomLength: number) {
-        this.hotel = new Map();
-        this.roomLength = roomLength;
-    }
+	constructor(roomLength: number) {
+		this.hotel = new Map();
+		this.roomLength = roomLength;
+	}
 
-    public joinRoom(roomID: string, participant: Hosted<K>, key?: string): OperationResult<Room<T, Hosted<K>>> {
-        const room = this.hotel.get(roomID);
+	public joinRoom(
+		roomID: string,
+		participant: Hosted<K>,
+		key?: string
+	): OperationResult<Room<T, Hosted<K>>> {
+		const room = this.hotel.get(roomID);
 
-        if (!room) {
-            return {
-                error: true,
-                msgs: ["Room not found"],
-            };
-        }
+		if (!room) {
+			return {
+				error: true,
+				msgs: ['Room not found'],
+			};
+		}
 
-        if (room.key !== key) {
-            return {
-                error: true,
-                msgs: [`Room key is incorrect`],
-            };
-        }
-        
-        const emptySpaceIdx = room.participants.findIndex((p) => p === null);
+		if (room.key !== key) {
+			return {
+				error: true,
+				msgs: [`Room key is incorrect`],
+			};
+		}
 
-        if (emptySpaceIdx === -1) {
-            return {
-                error: true,
-                msgs: [`Room is full (${this.roomLength}/${this.roomLength})`],
-            };
-        }
-        
-        room.participants[emptySpaceIdx] = participant;
+		const emptySpaceIdx = room.participants.findIndex((p) => p === null);
 
-        const updatedRoom: Room<T, Hosted<K>> = {
-            participants: room.participants,
-            key: key,
-        };
+		if (emptySpaceIdx === -1) {
+			return {
+				error: true,
+				msgs: [`Room is full (${this.roomLength}/${this.roomLength})`],
+			};
+		}
 
-        this.hotel.set(roomID, updatedRoom);
+		room.participants[emptySpaceIdx] = participant;
 
-        return {
-            error: false,
-            msgs: [],
-            out: room,
-        };
-    }
+		const updatedRoom: Room<T, Hosted<K>> = {
+			participants: room.participants,
+			key: key,
+		};
 
-    public removeFromRoom(roomID: string, participantIdx: number): void {
-        const room = this.hotel.get(roomID);
+		this.hotel.set(roomID, updatedRoom);
 
-        if (room) {
-            const participantsLeft = arrayToFixedLengthArray<Hosted<K>, T>(room.participants.map((p, idx) => idx === participantIdx ? null : p));
+		return {
+			error: false,
+			msgs: [],
+			out: room,
+		};
+	}
 
-            const updatedRoom: Room<T, Hosted<K>> = {
-                participants: participantsLeft,
-                key: room.key,
-            };
+	public removeFromRoom(roomID: string, participantIdx: number): void {
+		const room = this.hotel.get(roomID);
 
-            this.hotel.set(roomID, updatedRoom);
-        }
-    }
+		if (room) {
+			const participantsLeft = arrayToFixedLengthArray<Hosted<K>, T>(
+				room.participants.map((p, idx) =>
+					idx === participantIdx ? null : p
+				)
+			);
 
-    public checkRoom(roomID: string, key?: string): OperationResult<Room<T, Hosted<K>>> {
-        const room = this.hotel.get(roomID);
+			const updatedRoom: Room<T, Hosted<K>> = {
+				participants: participantsLeft,
+				key: room.key,
+			};
 
-        if (!room) {
-            return {
-                error: true,
-                msgs: ["Room not found"],
-            };
-        }
+			this.hotel.set(roomID, updatedRoom);
+		}
+	}
 
-        if ((room.key && !key) || (room.key && key && room.key !== key)) {
-            return {
-                error: true,
-                msgs: [`Room key is incorrect`],
-            };
-        }
+	public checkRoom(
+		roomID: string,
+		key?: string
+	): OperationResult<Room<T, Hosted<K>>> {
+		const room = this.hotel.get(roomID);
 
-        return {
-            error: false,
-            msgs: [],
-            out: room,
-        };
-    }
+		if (!room) {
+			return {
+				error: true,
+				msgs: ['Room not found'],
+			};
+		}
 
-    public createRoom(creator: Hosted<K>, key?: string, limit?: number): string {
-        const roomID: string = v4();
+		if ((room.key && !key) || (room.key && key && room.key !== key)) {
+			return {
+				error: true,
+				msgs: [`Room key is incorrect`],
+			};
+		}
 
-        const existantRoom = this.hotel.get(roomID);
-        if (existantRoom) {
-            return this.createRoom(creator, key, limit);
-        }
+		return {
+			error: false,
+			msgs: [],
+			out: room,
+		};
+	}
 
-        const participants = this.createHostedsArray();
-        participants[0] = creator;
+	public createRoom(
+		creator: Hosted<K>,
+		key?: string,
+		limit?: number
+	): string {
+		const roomID: string = v4();
 
-        const newRoom: Room<T, Hosted<K>> = {
-            participants: participants,
-            key: key,
-        };
+		const existantRoom = this.hotel.get(roomID);
+		if (existantRoom) {
+			return this.createRoom(creator, key, limit);
+		}
 
-        this.hotel.set(roomID, newRoom);
+		const participants = this.createHostedsArray();
+		participants[0] = creator;
 
-        return roomID;
-    }
+		const newRoom: Room<T, Hosted<K>> = {
+			participants: participants,
+			key: key,
+		};
 
-    public deleteRoom(roomID: string): boolean {
-        return this.hotel.delete(roomID);
-    }
+		this.hotel.set(roomID, newRoom);
 
-    private createHostedsArray(): FixedLengthArray<Hosted<K>, T> {
-        const arr = new Array<Hosted<K>>(this.roomLength).fill(null);
+		return roomID;
+	}
 
-        return arrayToFixedLengthArray<Hosted<K>, T>(arr);
-    }
+	public deleteRoom(roomID: string): boolean {
+		return this.hotel.delete(roomID);
+	}
+
+	private createHostedsArray(): FixedLengthArray<Hosted<K>, T> {
+		const arr = new Array<Hosted<K>>(this.roomLength).fill(null);
+
+		return arrayToFixedLengthArray<Hosted<K>, T>(arr);
+	}
 }
 
 export type { Room, Hosted };
