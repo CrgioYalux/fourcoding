@@ -7,6 +7,8 @@ import Preview from './Preview';
 import DEFAULT from './const';
 
 import './Editor.css';
+import CopyToClipboardIcon from '../Icons/CopyToClipboard';
+import copyToClipboard from '../../utils/copyToClipboard';
 
 interface EditorProps {}
 
@@ -63,12 +65,27 @@ const Editor: React.FC<EditorProps> = () => {
 	});
 
 	return (
-		<>
-			<small>room's ID:{state.room?.ID}</small>
-			<small>
-				participants:{' '}
-				{state.room?.participants.filter((p) => p !== null).join(' - ')}
-			</small>
+		<div className="Editor__container">
+			<div className="Editor__header">
+				<div className="Editor-header__room-id">
+					<small className="Editor-room-id__label">
+						{`Room ID: ${state.room?.ID}`}
+					</small>
+					<button
+						type="button"
+						className="Editor-room-id__copy-to-clipboard"
+						onClick={() => {
+							if (!state.room?.ID) return;
+							copyToClipboard(state.room.ID);
+						}}
+					>
+						<CopyToClipboardIcon className="Editor-copy-to-clipboard__icon" />
+					</button>
+				</div>
+				<small className="Editor-header__room_participants">
+					{`Team: ${state.room?.participants.filter((p) => p !== null).join(' - ')}`}
+				</small>
+			</div>
 			<div className="Editor">
 				<EditorTextarea
 					editing="HTML"
@@ -96,7 +113,7 @@ const Editor: React.FC<EditorProps> = () => {
 				/>
 				<Preview JS={JS} HTML={HTML} CSS={CSS} />
 			</div>
-		</>
+		</div>
 	);
 };
 
