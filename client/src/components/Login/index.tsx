@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import SwitchLoginType from './SwitchLoginType';
-import InputText from '../Generics/InputText';
+import Input from '../Generics/Input';
 
 import { useSocketContext } from '../../providers/Socket/';
 
@@ -17,13 +16,6 @@ const Login: React.FC<{}> = () => {
 	useEffect(() => {
 		setLastLog(state.logs[state.logs.length - 1]);
 	}, [state.logs.length]);
-
-	const switchLoginType = (): void => {
-		setLoginType((prev) =>
-			prev === 'join-room' ? 'create-room' : 'join-room'
-		);
-		setLastLog('');
-	};
 
 	const handleSubmit = (event: React.SyntheticEvent): void => {
 		event.preventDefault();
@@ -64,36 +56,59 @@ const Login: React.FC<{}> = () => {
 
 	return (
 		<form onSubmit={handleSubmit} className="Login">
-			<SwitchLoginType
-				label={loginType.split('-').join(' ')}
-				checked={loginType === 'create-room'}
-				switchChecked={switchLoginType}
-			/>
+			<div className="Login__header_options">
+				<button
+					type="button"
+					className={loginType === 'join-room' ? '' : '--active'}
+					onClick={() => {
+						setLoginType('create-room');
+						setLastLog('');
+					}}
+				>
+					Create Room
+				</button>
+				<span>or</span>
+				<button
+					type="button"
+					className={loginType === 'join-room' ? '--active' : ''}
+					onClick={() => {
+						setLoginType('join-room');
+						setLastLog('');
+					}}
+				>
+					Join Room
+				</button>
+			</div>
 			<div className="Login__inputs_box">
-				<InputText
+				<Input
+					type="text"
 					name="username_input"
-					label="username"
+					label="nickname"
 					htmlFor="username_input"
-					className={'InputText'}
+					className="Login__Input"
 				/>
-				<InputText
+				<Input
+					type="password"
 					name="password_input"
-					label="password"
+					label="room password"
 					htmlFor="password_input"
-					className={'InputText'}
+					className="Login__Input"
 				/>
 				{loginType === 'join-room' && (
-					<InputText
+					<Input
+						type="text"
 						name="roomID_input"
 						label="room ID"
 						htmlFor="roomID_input"
+						className="Login__Input"
 						required={true}
-						className={'InputText'}
 					/>
 				)}
 			</div>
-			<input type="submit" value={loginType.split('-')[0]} />
-			<strong>{lastLog}</strong>
+			<div className="Login__submit_state">
+				<strong>{lastLog}</strong>
+				<button type="submit">{loginType.split('-')[0]}</button>
+			</div>
 		</form>
 	);
 };

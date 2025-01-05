@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 /* Reset */
 *,
 *::before,
@@ -15,7 +17,6 @@
 	font-weight: 400;
 
 	color-scheme: light dark;
-	background-color: #242424;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -203,12 +204,13 @@
 	);
 }
 
-body {
-	min-height: 100vh;
+:root.dark body {
+	background-color: var(--primary-color-l-base);
+	color: var(--secondary-color-l-base);
+}
 
-	display: grid;
-	place-items: center;
-
+:root body,
+:root.light body {
 	background-color: var(--secondary-color-l-base);
-	color: var(--primary-color-l-high);
+	color: var(--primary-color-l-base);
 }

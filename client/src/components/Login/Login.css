@@ -1,181 +1,127 @@
-.InputText {
-	flex: 1 1 auto;
-
-	display: flex;
-	flex-direction: row;
-
-	color: inherit;
-}
-
-.InputText > input {
-	flex: 1 1 auto;
-	min-width: 30ch;
-}
-
-.InputText > span {
-	flex: 0 0 30%;
-	color: inherit;
-}
-
-.SwitchLoginType > input[type='checkbox'] {
-	display: none;
-}
-
-.SwitchLoginTypeBT {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: 5px;
-
-	color: inherit;
-}
-
-.SwitchLoginTypeBT > span {
-	position: relative;
-	color: inherit;
-	font-weight: 600;
-	font-size: 0.75em;
-	animation: SwitchLoginTypeOpacityChangeAnim1 0.35s ease-out forwards;
-}
-
-.SwitchLoginType > input[type='checkbox']:checked ~ .SwitchLoginTypeBT > span {
-	animation: SwitchLoginTypeOpacityChangeAnim2 0.35s ease-out forwards;
-}
-
-.SwitchLoginTypeBT > button {
-	width: 100%;
-	aspect-ratio: 16/9;
-
-	max-width: 7ch;
-	padding: 4px;
-
-	outline: 0;
-	border: 0;
-
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-
-	color: inherit;
-	background: transparent;
-
-	border: 2px solid currentColor;
-	border-radius: 9px;
-
-	cursor: pointer;
-}
-
-.SwitchLoginType
-	> input[type='checkbox']:checked
-	~ .SwitchLoginTypeBT
-	> button {
-	align-items: flex-end;
-}
-
-.SwitchLoginTypeBT > button > span {
-	height: 100%;
-	aspect-ratio: 1;
-
-	display: block;
-
-	color: inherit;
-	background: currentColor;
-	border-radius: 5px;
-}
-
 .Login {
-	--Login-background: var(--secondary-color-l-base);
-	--Login-color: var(--brand-color-l-high);
+	width: 100%;
+	max-width: 25rem;
+	height: 15rem;
+
+	color: var(--brand-color-l-high);
 
 	display: flex;
 	flex-direction: column;
+	align-items: center;
 	gap: 20px;
 
-	font-size: 1rem;
+	.Login__header_options {
+		flex: 0 0 max-content;
+		width: 100%;
+		display: flex;
+		gap: 10px;
+		justify-content: center;
 
-	color: var(--Login-color);
+		button {
+			all: unset;
+
+			cursor: pointer;
+
+			color: inherit;
+			font-weight: bold;
+			line-height: 1;
+
+			border-bottom: 3px solid transparent;
+
+			&:focus {
+				outline-offset: 2.5px;
+			}
+
+			&.--active {
+				border-color: currentColor;
+			}
+		}
+	}
+
+	.Login__inputs_box {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		gap: 10px;
+	}
+
+	.Login__submit_state {
+		display: flex;
+		align-self: self-start;
+		justify-content: space-between;
+		width: 80%;
+
+		strong {
+			flex: 0 0 20ch;
+
+			color: var(--unsuccess-color);
+		}
+
+		button {
+			all: unset;
+			margin-left: auto;
+			cursor: pointer;
+
+			padding: 0.15em 0.35em;
+
+			height: max-content;
+			flex: 0 0 5ch;
+
+			text-align: center;
+			font-weight: 500;
+			letter-spacing: 1px;
+
+			background-color: var(--brand-color-l-lowest);
+			color: var(--primary-color-l-base);
+
+			user-select: none;
+		}
+	}
 }
 
-.Login__inputs_box {
+.Login__Input {
 	display: flex;
-	flex-direction: column;
-	gap: 10px;
+	align-items: center;
+	gap: 1ch;
 
 	color: inherit;
-}
 
-.Login input {
-	padding: 0 2px;
-
-	outline: 0;
-	border: 1px solid currentColor;
-
-	text-align: center;
-	color: var(--Login-color);
-	background: var(--Login-background);
-}
-
-.Login input:focus,
-.Login button:focus {
-	outline: 1px solid currentColor;
-	outline-offset: 2px;
-}
-
-.Login input:not([type='submit'])::selection {
-	background: var(--Login-color);
-	color: var(--Login-background);
-}
-
-.Login > input {
-	align-self: flex-end;
-
-	width: max-content;
-
-	font-size: 1.2em;
-	padding: 0.15em 0.35em;
-
-	border: 0;
-	border-radius: 3px;
-
-	outline-color: var(--Login-color) !important;
-
-	background: var(--Login-color);
-	color: var(--Login-background);
-
-	cursor: pointer;
-}
-
-.Login > strong {
-	color: var(--unsuccess-color);
-}
-
-@keyframes SwitchLoginTypeOpacityChangeAnim1 {
-	0% {
-		bottom: 0;
-		opacity: 0.8;
+	span {
+		flex: 0 0 12ch;
+		font-weight: bold;
 	}
-	50% {
-		bottom: 10px;
-		opacity: 1;
-	}
-	100% {
-		bottom: 0;
-		opacity: 0.5;
-	}
-}
 
-@keyframes SwitchLoginTypeOpacityChangeAnim2 {
-	0% {
-		bottom: 0;
-		opacity: 0.8;
+	input {
+		flex: 0 0 20ch;
+		height: 100%;
+
+		padding: 0.25em;
+
+		color: inherit;
+		background-color: transparent;
+		border: 2px solid currentColor;
+
+		&:-webkit-autofill,
+		&:-webkit-autofill:hover,
+		&:-webkit-autofill:focus,
+		&:-webkit-autofill:active {
+			-webkit-box-shadow: 0 0 0 30px transparent inset !important;
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: var(--brand-color-l-high);
+			border-color: var(--brand-color-l-high);
+		}
 	}
-	50% {
-		bottom: 10px;
-		opacity: 1;
-	}
-	100% {
-		bottom: 0;
-		opacity: 0.5;
+
+	button {
+		all: unset;
+
+		flex: 0 0 6ch;
+
+		cursor: pointer;
+		color: inherit;
+		font-size: 0.95em;
+		font-weight: normal;
+
+		user-select: none;
 	}
 }
